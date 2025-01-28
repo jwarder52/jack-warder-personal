@@ -1,6 +1,6 @@
-this was created by Jack Warder and Leo VanDerlofske
+Algorithm created by Jack Warder and Leo VanDerlofske
 
-to run this file create a terminal in the folder and run the line 
+to run this file open a terminal in the folder and run the line 
 "python GeneticRSA.py"
 if you would like to test different values there are functions to do so
 comment out the runGA at the bottom and uncomment any of the test functions (these might take a little while to run)
