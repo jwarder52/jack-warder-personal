@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<!--
+Jack Warder
+ Solar System - Project 2
+   ColorCube - draw a cube with six different color faces
+-->
+<html>
+  <head>
+    <title>Solar System</title>
+    <link rel="icon" type="image/png" href="COMP3801_RGB_cube.png" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="Common/webgl-utils-2.js" type="text/javascript"></script>
+    <script src="Common/initShaders2.js" type="text/javascript"></script>
+    <script src="Common/MV.js" type="text/javascript"></script>
+    <script src="Planet.js" type="text/javascript"></script>
+    <script src="Solar.js" type="text/javascript"></script>
+    <script src="Ship.js" type="text/javascript"></script>
+    <script src="Ring.js" type="text/javascript"></script>
+    
+  </head>
+  <body onload="new Solar('gl-canvas')">
+    <div align="center">
+      <canvas id="gl-canvas" width="1024" height="640">
+        This browser doesn't support the HTML5 canvas element
+      </canvas>
+        <div>
+        Play and Pause Animation:  
+        <button id="gl-canvas-play-button">Start/Stop</button>
+        Press to Toggle Viewports: 
+        <button id="gl-canvas-view-button">Viewports</button>
+        Press to Toggle Orbit Paths: 
+        <button id="gl-canvas-orbit-button">Orbits</button>
+        </div>   
+    </div>
+  </body>
+</html>
