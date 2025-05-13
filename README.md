@@ -1,6 +1,9 @@
 # jack-warder-personal
 Personal repository to show various projects I have created over the years.
 
+# LinkedIn
+<p>https://www.linkedin.com/in/jack-warder/</p>
+
 # Projects
 
 ## Genetic Algorithm for RSA
@@ -40,3 +43,16 @@ Personal repository to show various projects I have created over the years.
 </div>
 <p>https://github.com/jwarder52/jack-warder-personal/tree/main/Computer_Graphics</p>
 
+# Education
+
+## University of Denver
+<div>
+  <p>Bachelor's of Science in Computer Science</p>
+  <p>Minor in Mathematics and Emergent Digital Practices</p>
+  <p>GPA: 3.85</p>
+</div>
+
+## Skills
+<div>
+  <p>Full Stack Development (MERN), HTML, CSS, JavaScript, Java, Python, C, C#, p5js, Git, Dart/Flutter, Figma, Haskell</p>
+</div>
