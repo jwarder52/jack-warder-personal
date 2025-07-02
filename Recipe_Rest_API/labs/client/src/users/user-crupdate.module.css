@@ -1,0 +1,35 @@
+.label {
+    color: #F5EAD6;
+    font-weight: bold;
+    background-color: #5C4033;
+}
+
+.link {
+    color: #8B5E3C;
+    text-decoration: none;
+}
+
+.link:hover {
+    color: #A0522D;
+    text-decoration: underline;
+}
+
+.input {
+    color: #FDF6EC;
+    font-weight: normal;
+    background-color: #7D5A4F;
+}
+
+.inputButton {
+    background-color: #8B5E3C;
+    color: #FDF6EC;
+    padding: 10px 20px;
+    font-weight: bold;
+    border-radius: 5px;
+    border: none;
+}
+
+.inputButton:hover {
+    background-color: #A0522D;
+}
+

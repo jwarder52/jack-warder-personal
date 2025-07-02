@@ -1,6 +1,7 @@
 'use strict';
 
 import { Review } from './reviews.model.js';
+import { Recipe } from '../recipes/recipes.model.js';
 
 
 // Find all Reviews
@@ -31,15 +32,27 @@ export function show(req, res) {
     });
 }
 
-// Create a new review
-export function create(req, res) {
-  Review.create(req.body)
-    .then(createdReview => {
-      res.status(201).json(createdReview);
-    })
-    .catch(err => {
-      res.status(400).send(err);
-    });
+
+export async function create(req, res) {
+  console.log("REQ.PARAMS:", req.params); 
+  try {
+    const recipe = await Recipe.findById(req.params.recipeId);
+    if (!recipe) {
+      return res.status(404).json({ message: "Recipe not found" });
+    }
+
+    // Create the review
+    const newReview = await Review.create(req.body);
+
+    // Link review to recipe
+    recipe.reviews.push(newReview._id);
+    await recipe.save();
+
+    res.status(201).json(newReview);
+  } catch (err) {
+    console.error("Error creating review:", err);
+    res.status(400).json({ error: err.message });
+  }
 }
 
 // Update a review

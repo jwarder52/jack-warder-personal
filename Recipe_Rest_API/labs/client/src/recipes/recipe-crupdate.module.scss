@@ -1,0 +1,96 @@
+$background-color: #575a4b;
+$font-color: #cfcfea;
+$grid-color: #816c61;
+$card-color: #a89b9d;
+$border-color: #000000;
+
+.background {
+  background-color: $background-color;
+  min-height: 100vh;
+  padding: 2rem 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.container {
+  background-color: $grid-color;
+  padding: 2rem;
+  border-radius: 12px;
+  width: 100%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  color: $grid-color;
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  color: $font-color;
+}
+
+.input {
+  display: block;
+  width: 100%;
+  padding: 0.5rem;
+  background-color: #7D5A4F;
+  border: 1px solid $border-color;
+  border-radius: 5px;
+  margin-bottom: 1rem;
+  color: $font-color;
+}
+
+.input::placeholder {
+  color: $font-color;
+}
+
+
+.ingredientRow {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.deleteButton {
+  background-color: #922d2d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.deleteButton:hover {
+  background-color: #b03636;
+}
+
+.inputButton {
+  background-color: $background-color;
+  color: $font-color;
+  padding: 10px 20px;
+  font-weight: bold;
+  border-radius: 5px;
+  border: none;
+  margin-right: 1rem;
+  margin-top: 1rem;
+  cursor: pointer;
+}
+
+.inputButton:hover {
+  background-color: $card-color;;
+}
+
+.link {
+  color: $font-color;
+  font-weight: bold;
+  display: inline-block;
+  margin-top: 2rem;
+  text-decoration: none;
+}
+
+.link:hover {
+  color: $font-color;
+  text-decoration: underline;
+}

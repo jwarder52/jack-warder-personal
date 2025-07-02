@@ -18,4 +18,4 @@ services:
     depends_on:
       - mongo
     environment:
-      DB_URL: mongodb://root:pass@mongo:27017/project1db?authSource=admin
+      DB_URL: mongodb://root:pass@mongo:27017/project2db?authSource=admin
