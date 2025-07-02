@@ -43,6 +43,15 @@ Personal repository to show various projects I have created over the years.
 </div>
 <p>https://github.com/jwarder52/jack-warder-personal/tree/main/Computer_Graphics</p>
 
+## Recipe REST API Backend
+<div>
+  <ul>
+    <li>Inside the Recipe_Rest_API folder is my implementation of a rest api for users, their recipes, and reviews</li>
+    <li>The README shows the routes and potential codes, all routes, models, and controllers can be found in labs/server/api</li>
+  </ul>
+</div>
+<p>https://github.com/jwarder52/jack-warder-personal/tree/main/Recipe_Rest_API</p>
+
 # Education
 
 ## University of Denver
