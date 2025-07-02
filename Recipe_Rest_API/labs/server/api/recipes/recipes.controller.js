@@ -18,6 +18,7 @@ export function index(req, res) {
 // Find details for one recipe
 export function show(req, res) {
   Recipe.findById(req.params.id)
+    .populate('reviews')
     .exec()
     .then(existingRecipe => {
       if (existingRecipe) {
@@ -45,6 +46,7 @@ export function create(req, res) {
 // Update a recipe
 export function update(req, res) {
   Recipe.findById(req.params.id)
+    .populate('reviews')
     .exec()
     .then(existingRecipe => {
       if (existingRecipe) {

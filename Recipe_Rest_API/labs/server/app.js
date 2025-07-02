@@ -4,6 +4,12 @@ import recipeRoutes from './api/routes/recipes.routes.js';
 import reviewRoutes from './api/routes/reviews.routes.js';
 import bodyParser from "body-parser";
 import mongoose from "mongoose";
+import cors from "cors";
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export default (port, dbUrl) => {
 
@@ -17,15 +23,29 @@ export default (port, dbUrl) => {
     });
   const app = express();
 
+  app.use(express.static(path.join(__dirname, 'public')));
+
   app.get('/', (req, res) => {
-    res.send('Hello World!');
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
   });
 
+  app.use(cors());
   app.use(bodyParser.json());
-  app.use('/users', userRoutes);
-  app.use('/recipes', recipeRoutes);
-  app.use('/recipes/:recipeId/reviews', reviewRoutes);
-  app.use('/reviews', reviewRoutes);
+  // app.use('/users', userRoutes);
+  // app.use('/recipes', recipeRoutes);
+  // app.use('/recipes/:recipeId/reviews', reviewRoutes);
+  // app.use('/reviews', reviewRoutes);
+
+  app.use('/api/users', userRoutes);
+  app.use('/api/recipes', recipeRoutes);
+  app.use('/api/recipes', reviewRoutes);
+  app.use('/api/recipes/:recipeId/reviews', reviewRoutes);
+  app.use('/api/reviews', reviewRoutes);
+
+  app.use((req, res, next) => {
+    console.log(`[${req.method}] ${req.path}`);
+    next();
+  });
 
 
 

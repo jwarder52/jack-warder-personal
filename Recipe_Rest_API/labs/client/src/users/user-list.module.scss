@@ -1,0 +1,43 @@
+$tableColor: #FDF6EC;
+$linkDecoration: none;
+$linkHoverDecoration: underline;
+
+@mixin tableHeader ($color, $background) {
+    font-weight: bold;
+    color: $color;
+    background-color: $background;
+}
+
+@mixin tableBody ($color, $background) {
+    font-weight: normal;
+    color: $color;
+    background-color: $background;
+}
+
+.tableHeaders {
+    @include tableHeader(#F5EAD6, #5C4033);
+}
+
+.link {
+    color: #8B5E3C;
+    text-decoration: $linkDecoration;
+}
+
+.link:hover {
+    color: #A0522D;
+    text-decoration: $linkHoverDecoration;
+}
+
+.tableLink {
+    color: $tableColor;
+    text-decoration: $linkDecoration;
+}
+
+.tableLink:hover {
+    color: #F5EAD6;
+    text-decoration: $linkHoverDecoration;
+}
+
+.tableBody {
+    @include tableBody($tableColor, #7D5A4F);
+}

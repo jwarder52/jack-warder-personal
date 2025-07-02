@@ -12,7 +12,7 @@ let reviewSchema = Schema ({
     description: {type: String, required: true},
     rating: {type: Number, min: 1, max: 5, required: true},
     dateCreated: {type: Date, default: Date.now, required: true},
-    user: {type: Schema.Types.ObjectId, ref: 'User', required: true}
+    user: {type: Schema.Types.ObjectId, ref: 'User', required: false}
 })
 
 const Review = mongoose.model('Review', reviewSchema);

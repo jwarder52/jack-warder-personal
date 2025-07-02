@@ -1,0 +1,29 @@
+.list {
+    list-style-type: none;
+    padding: 5px;
+    --hbackground-color: #5C4033;
+    --htext-color: #F5EAD6;
+    --text-color: #FDF6EC;
+    --background-color: #7D5A4F;
+
+}
+    .listHeader {
+        color: var(--htext-color);
+        font-weight: bold;
+        background-color: var(--hbackground-color);
+    }
+        .listBody {
+            color: var(--text-color);
+            font-weight: normal;
+            background-color: var(--background-color);
+        }
+
+.link {
+    color: #8B5E3C;
+    text-decoration: none;
+}
+
+.link:hover {
+    color: #A0522D;
+    text-decoration: underline;
+}

@@ -8,10 +8,11 @@ router.get('/', controller.index);
 router.get('/:id', controller.show);
 
 // POST method
-router.post('/', controller.create);
+//router.post('/', controller.create);
+router.post('/:recipeId/reviews', controller.create);
 
 // PUT method
-router.put('/:id', controller.update);
+router.post('/:id', controller.update);
 
 // DELETE method
 router.delete('/:id', controller.destroy);
