@@ -49,6 +49,7 @@ Personal repository to show various projects I have created over the years.
     <li>Inside the Recipe_Rest_API folder is my implementation of a rest api for users, their recipes, and reviews</li>
     <li>The frontend utilizes react for recipes and reviews, waiting for user implementation later</li>
     <li>The README shows the routes and potential codes, all routes, models, and controllers can be found in labs/server/api</li>
+    <li>FRONT PAGE NOT DONE (Just an access point)</li>
   </ul>
 </div>
 <p>https://github.com/jwarder52/jack-warder-personal/tree/main/Recipe_Rest_API</p>

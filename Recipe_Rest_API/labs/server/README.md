@@ -1,5 +1,7 @@
 Overview:
 Recipe API Design Frontend and Backend
+Using MongoDB, Express, React, Node
+Front Page and User implementations still in the works
 
 Schemas:
 
