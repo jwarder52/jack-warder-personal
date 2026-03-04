@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RedstoneAI</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #1a1a1a;
+      color: #e0e0e0;
+      font-family: 'Courier New', Courier, monospace;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    h1 {
+      color: #ff4444;
+      font-size: 1.8rem;
+      margin-bottom: 0.25rem;
+      letter-spacing: 2px;
+    }
+
+    .subtitle {
+      color: #888;
+      font-size: 0.85rem;
+      margin-bottom: 2rem;
+    }
+
+    form {
+      background: #242424;
+      border: 1px solid #333;
+      border-radius: 6px;
+      padding: 1.5rem;
+      max-width: 640px;
+    }
+
+    .field {
+      margin-bottom: 1.2rem;
+    }
+
+    label {
+      display: block;
+      color: #aaa;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.4rem;
+    }
+
+    input[type="file"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      background: #1a1a1a;
+      border: 1px solid #444;
+      border-radius: 4px;
+      color: #e0e0e0;
+      font-family: inherit;
+      font-size: 0.95rem;
+      padding: 0.5rem 0.7rem;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input[type="file"] { cursor: pointer; }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: #ff4444;
+    }
+
+    .coords {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0.8rem;
+    }
+
+    textarea { resize: vertical; min-height: 80px; }
+
+    button[type="submit"] {
+      background: #ff4444;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: bold;
+      letter-spacing: 1px;
+      padding: 0.6rem 1.5rem;
+      transition: background 0.15s;
+      width: 100%;
+    }
+
+    button[type="submit"]:hover { background: #cc2222; }
+    button[type="submit"]:disabled { background: #555; cursor: not-allowed; }
+
+    #status {
+      margin-top: 1rem;
+      font-size: 0.85rem;
+      color: #888;
+      min-height: 1.2em;
+    }
+
+    #status.error { color: #ff6666; }
+    #status.ok    { color: #44cc44; }
+
+    #result-section {
+      margin-top: 2rem;
+      max-width: 900px;
+    }
+
+    #result-section h2 {
+      color: #ff4444;
+      font-size: 1rem;
+      letter-spacing: 1px;
+      margin-bottom: 0.5rem;
+    }
+
+    #result {
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 4px;
+      color: #c8ffc8;
+      font-size: 0.88rem;
+      overflow-x: auto;
+      padding: 1rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+  </style>
+</head>
+<body>
+  <h1>&#x26A1; RedstoneAI</h1>
+  <p class="subtitle">Upload a Minecraft world, enter a redstone block coordinate, get an AI analysis.</p>
+
+  <form id="analyzeForm">
+    <div class="field">
+      <label>World ZIP File</label>
+      <input type="file" id="world_zip" name="world_zip" accept=".zip" required />
+    </div>
+
+    <div class="field">
+      <label>Seed Block Coordinates</label>
+      <div class="coords">
+        <div>
+          <label for="x">X</label>
+          <input type="number" id="x" name="x" required placeholder="0" />
+        </div>
+        <div>
+          <label for="y">Y</label>
+          <input type="number" id="y" name="y" required placeholder="64" />
+        </div>
+        <div>
+          <label for="z">Z</label>
+          <input type="number" id="z" name="z" required placeholder="0" />
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="dimension">Dimension</label>
+      <select id="dimension" name="dimension">
+        <option value="overworld">Overworld</option>
+        <option value="nether">Nether</option>
+        <option value="end">End</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="user_context">Context / Question (optional)</label>
+      <textarea id="user_context" name="user_context"
+        placeholder="e.g. This is a 2-clock timer but it doesn't pulse fast enough..."></textarea>
+    </div>
+
+    <button type="submit" id="submitBtn">Analyze</button>
+    <div id="status"></div>
+  </form>
+
+  <div id="result-section" style="display:none;">
+    <h2>Analysis</h2>
+    <pre id="result"></pre>
+  </div>
+
+  <script>
+    const form = document.getElementById('analyzeForm');
+    const btn  = document.getElementById('submitBtn');
+    const statusEl = document.getElementById('status');
+    const resultSection = document.getElementById('result-section');
+    const resultEl = document.getElementById('result');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      btn.disabled = true;
+      statusEl.className = '';
+      statusEl.textContent = 'Uploading and analyzing... (this may take a moment)';
+      resultSection.style.display = 'none';
+      resultEl.textContent = '';
+
+      const fd = new FormData(form);
+
+      try {
+        const resp = await fetch('/analyze', { method: 'POST', body: fd });
+        const data = await resp.json();
+
+        if (!resp.ok) {
+          statusEl.className = 'error';
+          statusEl.textContent = `Error: ${data.detail || resp.statusText}`;
+        } else {
+          statusEl.className = 'ok';
+          statusEl.textContent = `Done — ${data.blocks_found} redstone blocks analyzed.`;
+          resultEl.textContent = data.analysis;
+          resultSection.style.display = 'block';
+        }
+      } catch (err) {
+        statusEl.className = 'error';
+        statusEl.textContent = `Network error: ${err.message}`;
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
