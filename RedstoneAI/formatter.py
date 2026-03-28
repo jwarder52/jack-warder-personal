@@ -1,4 +1,3 @@
-import json
 from collections import Counter
 
 BLOCK_SHORT_CODES: dict[str, str] = {
@@ -124,16 +123,13 @@ def format_for_llm(
                     lines.append(f"Z={z:<3}: " + "  ".join(row_cells))
                 lines.append("")
 
-    # --- Full block data ---
-    lines.append("=== FULL BLOCK DATA (JSON) ===")
-    truncated = False
-    json_blocks = blocks
-    if len(blocks) > 2000:
-        json_blocks = blocks[:2000]
-        truncated = True
-
-    lines.append(json.dumps(json_blocks, separators=(",", ":")))
-    if truncated:
-        lines.append(f"(Note: JSON truncated to first 2000 of {len(blocks)} blocks)")
+    # --- Redstone block properties ---
+    lines.append("=== REDSTONE BLOCK PROPERTIES ===")
+    for b in blocks:
+        if not b["is_redstone"]:
+            continue
+        if b["properties"]:
+            bare = b["name"].replace("minecraft:", "")
+            lines.append(f"  ({b['x']},{b['y']},{b['z']}) {bare}: {b['properties']}")
 
     return "\n".join(lines)

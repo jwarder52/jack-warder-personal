@@ -41,9 +41,15 @@ def flood_fill_redstone(
     seed_x: int,
     seed_y: int,
     seed_z: int,
+    seed_search_radius: int = 10,
     max_blocks: int = 10000,
 ) -> list[dict]:
-    """BFS flood-fill from seed coordinate, returning all connected redstone blocks."""
+    """BFS flood-fill from seed coordinate, returning all connected redstone blocks and their neighbors.
+
+    The seed coordinate does not need to be a redstone block. The nearest redstone block within
+    seed_search_radius is used as the starting point. The flood fill travels through redstone blocks
+    and also captures non-redstone neighbors of each redstone block found.
+    """
     y_min, y_max = DIMENSION_Y_BOUNDS.get(dimension, (-64, 320))
 
     chunk_cache: dict[tuple[int, int], Any] = {}
@@ -61,21 +67,48 @@ def flood_fill_redstone(
         if chunk is None:
             return None
         try:
-            return chunk.get_block(x - (cx << 4), y, z - (cz << 4))
+            block = chunk.get_block(x - (cx << 4), y, z - (cz << 4))
+            # Amulet returns universal_minecraft: names internally; normalize to minecraft:
+            if block is not None and block.namespaced_name.startswith("universal_minecraft:"):
+                from amulet.api.block import Block
+                block = Block(
+                    "minecraft",
+                    block.base_name,
+                    block.properties,
+                )
+            return block
         except Exception:
             return None
 
-    # Check seed block
-    seed_block = get_block(seed_x, seed_y, seed_z)
-    if seed_block is None or not is_redstone_block(seed_block.namespaced_name):
+    # Find the nearest redstone block within seed_search_radius
+    start = None
+    for r in range(seed_search_radius + 1):
+        if start:
+            break
+        for dx in range(-r, r + 1):
+            for dy in range(-r, r + 1):
+                for dz in range(-r, r + 1):
+                    if max(abs(dx), abs(dy), abs(dz)) != r:
+                        continue
+                    b = get_block(seed_x + dx, seed_y + dy, seed_z + dz)
+                    if b is not None and is_redstone_block(b.namespaced_name):
+                        start = (seed_x + dx, seed_y + dy, seed_z + dz)
+                        break
+                if start:
+                    break
+            if start:
+                break
+
+    if start is None:
         return []
 
     visited: set[tuple[int, int, int]] = set()
     queue: deque[tuple[int, int, int]] = deque()
     results: list[dict] = []
+    captured: set[tuple[int, int, int]] = set()
 
-    queue.append((seed_x, seed_y, seed_z))
-    visited.add((seed_x, seed_y, seed_z))
+    queue.append(start)
+    visited.add(start)
 
     while queue and len(results) < max_blocks:
         x, y, z = queue.popleft()
@@ -87,13 +120,28 @@ def flood_fill_redstone(
         if not is_redstone_block(name):
             continue
 
-        properties = {k: str(v) for k, v in block.properties.items()}
-        results.append({"x": x, "y": y, "z": z, "name": name, "properties": properties})
+        # Capture this redstone block
+        if (x, y, z) not in captured:
+            captured.add((x, y, z))
+            properties = {k: str(v) for k, v in block.properties.items()}
+            results.append({"x": x, "y": y, "z": z, "name": name, "properties": properties, "is_redstone": True})
 
         for dx, dy, dz in _NEIGHBOR_OFFSETS:
             nx, ny, nz = x + dx, y + dy, z + dz
-            if (nx, ny, nz) not in visited:
-                visited.add((nx, ny, nz))
-                queue.append((nx, ny, nz))
+            neighbor = get_block(nx, ny, nz)
+            if neighbor is None:
+                continue
+            neighbor_name = neighbor.namespaced_name
+            if is_redstone_block(neighbor_name):
+                # Queue for flood fill traversal
+                if (nx, ny, nz) not in visited:
+                    visited.add((nx, ny, nz))
+                    queue.append((nx, ny, nz))
+            else:
+                # Capture as a non-redstone neighbor (once)
+                if (nx, ny, nz) not in captured and len(results) < max_blocks:
+                    captured.add((nx, ny, nz))
+                    properties = {k: str(v) for k, v in neighbor.properties.items()}
+                    results.append({"x": nx, "y": ny, "z": nz, "name": neighbor_name, "properties": properties, "is_redstone": False})
 
     return results

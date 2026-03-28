@@ -2,6 +2,9 @@ import os
 import shutil
 import tempfile
 
+from dotenv import load_dotenv
+load_dotenv()
+
 import amulet
 from fastapi import FastAPI, Form, HTTPException, Request, UploadFile
 from fastapi.responses import HTMLResponse
