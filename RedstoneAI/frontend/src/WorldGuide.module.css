@@ -1,0 +1,146 @@
+/* ── Overlay ── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 3rem 1rem 4rem;
+  z-index: 100;
+  overflow-y: auto;
+}
+
+/* ── Modal ── */
+.modal {
+  position: relative;
+  background: #1c1c1c;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 2.5rem 2rem;
+  width: 100%;
+  max-width: 600px;
+}
+
+/* ── Close button ── */
+.closeBtn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: #555;
+  cursor: pointer;
+  padding: 0.25rem;
+  line-height: 0;
+  transition: color 0.15s;
+}
+
+.closeBtn:hover { color: #e03333; }
+
+.closeBtn svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+/* ── Title ── */
+.title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 2rem;
+  padding-right: 2rem;
+  line-height: 1.4;
+}
+
+/* ── Sections ── */
+.section {
+  margin-bottom: 1.75rem;
+}
+
+.step {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #e03333;
+  margin-bottom: 0.75rem;
+}
+
+.platform {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #777;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.body {
+  font-size: 0.88rem;
+  color: #bbb;
+  line-height: 1.6;
+}
+
+.list {
+  padding-left: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  font-size: 0.88rem;
+  color: #bbb;
+  line-height: 1.5;
+}
+
+.optional {
+  font-weight: 400;
+  color: #555;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.72rem;
+}
+
+/* ── Inline code & kbd ── */
+.code {
+  background: #111;
+  border: 1px solid #2e2e2e;
+  border-radius: 4px;
+  color: #a8e6b8;
+  font-family: monospace;
+  font-size: 0.82rem;
+  padding: 0.1rem 0.4rem;
+}
+
+.kbd {
+  background: #222;
+  border: 1px solid #3a3a3a;
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  color: #ccc;
+  font-family: monospace;
+  font-size: 0.8rem;
+  padding: 0.1rem 0.45rem;
+}
+
+/* ── Tips box ── */
+.tips {
+  background: #1f1500;
+  border: 1px solid #4a3000;
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.tipsTitle {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #d4a843;
+  margin-bottom: 0.75rem;
+}
+
+.tips .list {
+  color: #d4a843;
+}

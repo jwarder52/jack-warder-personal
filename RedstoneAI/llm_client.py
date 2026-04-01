@@ -18,8 +18,8 @@ Be concise and specific. Use the coordinate system from the data.\
 """
 
 
-def analyze_redstone(formatted_prompt: str) -> str:
-    """Stream the Claude response to stdout and return the full text."""
+def analyze_redstone(formatted_prompt: str) -> tuple[str, int, int]:
+    """Stream the Claude response and return (text, input_tokens, output_tokens)."""
     client = anthropic.Anthropic()
 
     full_response: list[str] = []
@@ -33,6 +33,7 @@ def analyze_redstone(formatted_prompt: str) -> str:
         for chunk in stream.text_stream:
             print(chunk, end="", flush=True)
             full_response.append(chunk)
+        message = stream.get_final_message()
 
     print()  # newline after streaming completes
-    return "".join(full_response)
+    return "".join(full_response), message.usage.input_tokens, message.usage.output_tokens
