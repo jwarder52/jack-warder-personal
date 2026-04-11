@@ -1,6 +1,8 @@
-import sys
+import logging
 
 import anthropic
+
+log = logging.getLogger("redstoneai.llm")
 
 _SYSTEM_PROMPT = """\
 You are an expert Minecraft redstone engineer. You will be given a description of a redstone build \
@@ -31,9 +33,8 @@ def analyze_redstone(formatted_prompt: str) -> tuple[str, int, int]:
         messages=[{"role": "user", "content": formatted_prompt}],
     ) as stream:
         for chunk in stream.text_stream:
-            print(chunk, end="", flush=True)
             full_response.append(chunk)
         message = stream.get_final_message()
 
-    print()  # newline after streaming completes
+    log.info("llm_stream_done input_tokens=%d output_tokens=%d", message.usage.input_tokens, message.usage.output_tokens)
     return "".join(full_response), message.usage.input_tokens, message.usage.output_tokens

@@ -1,7 +1,10 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { SignedIn, SignedOut, SignInButton, UserButton, useAuth } from "@clerk/clerk-react";
 import styles from "./App.module.css";
 import WorldGuide from "./WorldGuide";
+import ProModal from "./ProModal";
+
+const FREE_LIMIT = 20;
 
 type Status =
   | { kind: "idle" }
@@ -59,12 +62,31 @@ function UploadZone({ onFile }: { onFile: (f: File) => void }) {
 }
 
 export default function App() {
-  const { getToken } = useAuth();
+  const { getToken, isSignedIn } = useAuth();
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const [analysis, setAnalysis] = useState<string | null>(null);
   const [worldFile, setWorldFile] = useState<File | null>(null);
   const [showGuide, setShowGuide] = useState(false);
+  const [showPro, setShowPro] = useState(false);
+  const [usageCount, setUsageCount] = useState(0);
   const formRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    if (!isSignedIn) return;
+    getToken().then((token) => {
+      console.log("[usage] fetching /me/usage");
+      fetch("/me/usage", { headers: { Authorization: `Bearer ${token}` } })
+        .then((r) => {
+          console.log("[usage] response status", r.status);
+          return r.json();
+        })
+        .then((data) => {
+          console.log("[usage] call_count", data.call_count);
+          setUsageCount(data.call_count ?? 0);
+        })
+        .catch((err) => console.error("[usage] fetch failed", err));
+    });
+  }, [isSignedIn]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -78,19 +100,29 @@ export default function App() {
 
     try {
       const token = await getToken();
+      console.log("[analyze] submitting request");
       const resp = await fetch("/analyze", {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: fd,
       });
       const data = await resp.json();
+      console.log("[analyze] response status", resp.status, data);
       if (!resp.ok) {
-        setStatus({ kind: "error", message: data.detail ?? resp.statusText });
+        if (resp.status === 429) {
+          console.warn("[analyze] limit reached, opening pro modal");
+          setUsageCount(FREE_LIMIT);
+          setShowPro(true);
+        } else {
+          setStatus({ kind: "error", message: data.detail ?? resp.statusText });
+        }
       } else {
         setStatus({ kind: "ok", blocksFound: data.blocks_found });
         setAnalysis(data.analysis);
+        setUsageCount(data.call_count ?? 0);
       }
     } catch (err) {
+      console.error("[analyze] fetch failed", err);
       setStatus({ kind: "error", message: err instanceof Error ? err.message : "Network error" });
     }
   }
@@ -103,6 +135,7 @@ export default function App() {
   return (
     <div className={styles.page}>
       {showGuide && <WorldGuide onClose={() => setShowGuide(false)} />}
+      {showPro && <ProModal onClose={() => setShowPro(false)} />}
       <div className={styles.container}>
         <header className={styles.header}>
           <div className={styles.authBar}>
@@ -112,7 +145,12 @@ export default function App() {
               </SignInButton>
             </SignedOut>
             <SignedIn>
-              <UserButton />
+              <div className={styles.authActions}>
+                <button className={styles.goProBtn} onClick={() => setShowPro(true)}>
+                  Go Pro
+                </button>
+                <UserButton />
+              </div>
             </SignedIn>
           </div>
           <h1 className={styles.title}>RedstoneAI</h1>
@@ -138,7 +176,7 @@ export default function App() {
           </section>
 
           <section className={styles.section}>
-            <h2 className={styles.sectionTitle}>Seed Block Coordinates</h2>
+            <h2 className={styles.sectionTitle}>Seed Block Coordinates <span className={styles.optional}>(point at a key redstone component, not just wire)</span></h2>
             <div className={styles.coords}>
               {(["x", "y", "z"] as const).map((axis) => (
                 <div key={axis} className={styles.coordField}>
@@ -173,25 +211,65 @@ export default function App() {
             <textarea
               className={styles.textarea}
               name="user_context"
-              placeholder="e.g. This is a 2-clock timer but it doesn't pulse fast enough..."
+              placeholder="e.g. This is an automated bee farm — the dispenser should collect honey but isn't firing..."
             />
           </section>
 
-          <button className={styles.button} type="submit" disabled={status.kind === "loading"}>
-            {status.kind === "loading" ? (
-              <span className={styles.buttonLoading}>
-                <span className={styles.spinner} />
-                Analyzing...
-              </span>
-            ) : "Analyze"}
-          </button>
+          {usageCount >= FREE_LIMIT ? (
+            <button
+              type="button"
+              className={styles.buttonLimitReached}
+              onClick={() => setShowPro(true)}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={styles.limitIcon}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+              </svg>
+              Monthly limit reached — Go Pro to keep analyzing
+            </button>
+          ) : (
+            <button className={styles.button} type="submit" disabled={status.kind === "loading"}>
+              {status.kind === "loading" ? (
+                <span className={styles.buttonLoading}>
+                  <span className={styles.spinner} />
+                  Analyzing...
+                </span>
+              ) : "Analyze"}
+            </button>
+          )}
 
           {status.kind !== "idle" && status.kind !== "loading" && (
             <p className={`${styles.statusMsg} ${status.kind === "error" ? styles.statusError : styles.statusOk}`}>
               {status.kind === "error" ? `Error: ${status.message}` : `Done — ${status.blocksFound} blocks analyzed.`}
             </p>
           )}
+
+          <SignedIn>
+            <div className={styles.usageRow}>
+              <span
+                className={`${styles.usageCount} ${
+                  usageCount >= FREE_LIMIT ? styles.usageExhausted :
+                  usageCount >= FREE_LIMIT * 0.75 ? styles.usageWarning : ""
+                }`}
+              >
+                {usageCount} / {FREE_LIMIT} analyses used this month
+              </span>
+              {usageCount >= FREE_LIMIT * 0.75 && (
+                <button className={styles.usageProLink} onClick={() => setShowPro(true)}>
+                  Go Pro for unlimited
+                </button>
+              )}
+            </div>
+          </SignedIn>
         </form>
+
+        {analysis && usageCount >= FREE_LIMIT && (
+          <div className={styles.nudgeBanner}>
+            <span>You've hit your free limit for this month.</span>
+            <button className={styles.nudgeBtn} onClick={() => setShowPro(true)}>
+              Go Pro for unlimited analyses
+            </button>
+          </div>
+        )}
 
         {analysis && (
           <div className={styles.resultCard}>
@@ -238,6 +316,26 @@ export default function App() {
           </aside>
 
         </div>{/* end .layout */}
+
+        <footer className={styles.footer}>
+          <h2 className={styles.footerTitle}>Contact Us</h2>
+          <div className={styles.footerGrid}>
+            <div className={styles.footerItem}>
+              <p className={styles.footerLabel}>Billing</p>
+              <a href="mailto:redstoneaisupport@gmail.com" className={styles.footerEmail}>
+                redstoneaisupport@gmail.com
+              </a>
+            </div>
+            <div className={styles.footerDivider} />
+            <div className={styles.footerItem}>
+              <p className={styles.footerLabel}>Bugs &amp; Feedback</p>
+              <a href="mailto:redstoneaidev@gmail.com" className={styles.footerEmail}>
+                redstoneaidev@gmail.com
+              </a>
+            </div>
+          </div>
+        </footer>
+
       </div>
     </div>
   );

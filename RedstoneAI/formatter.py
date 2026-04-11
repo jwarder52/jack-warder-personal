@@ -38,11 +38,73 @@ BLOCK_SHORT_CODES: dict[str, str] = {
     "minecraft:iron_trapdoor": "IT",
 }
 
+# Non-redstone blocks whose properties are meaningful for circuit analysis
+_STATEFUL_CONTEXT_BLOCKS: frozenset[str] = frozenset({
+    # Storage — comparators read these
+    "minecraft:chest",
+    "minecraft:trapped_chest",
+    "minecraft:barrel",
+    "minecraft:shulker_box",
+    "minecraft:furnace",
+    "minecraft:blast_furnace",
+    "minecraft:smoker",
+    "minecraft:brewing_stand",
+    "minecraft:hopper",
+    "minecraft:dropper",
+    "minecraft:dispenser",
+    # Beehives — honey_level drives comparator output
+    "minecraft:beehive",
+    "minecraft:bee_nest",
+    # Doors / trapdoors / gates — open, powered, facing
+    "minecraft:iron_door",
+    "minecraft:iron_trapdoor",
+    # Pistons
+    "minecraft:piston",
+    "minecraft:sticky_piston",
+    "minecraft:piston_head",
+    # Rails
+    "minecraft:powered_rail",
+    "minecraft:detector_rail",
+    "minecraft:activator_rail",
+    # Lamps / note blocks / jukeboxes
+    "minecraft:redstone_lamp",
+    "minecraft:note_block",
+    "minecraft:jukebox",
+    # Daylight / sculk
+    "minecraft:daylight_detector",
+    "minecraft:sculk_sensor",
+    "minecraft:calibrated_sculk_sensor",
+    # Cauldrons — comparator-readable
+    "minecraft:cauldron",
+    "minecraft:water_cauldron",
+    "minecraft:lava_cauldron",
+    "minecraft:powder_snow_cauldron",
+    # Cake — comparator-readable
+    "minecraft:cake",
+    # Lectern — comparator-readable
+    "minecraft:lectern",
+})
+
+# Block name suffixes whose properties are always meaningful
+_STATEFUL_CONTEXT_SUFFIXES = (
+    "_door",
+    "_trapdoor",
+    "_fence_gate",
+    "_shulker_box",
+)
+
 _BUTTON_SUFFIX = "_button"
 _PLATE_SUFFIX = "_pressure_plate"
 _DOOR_SUFFIX = "_door"
 _TRAPDOOR_SUFFIX = "_trapdoor"
 _GATE_SUFFIX = "_fence_gate"
+
+
+def is_stateful_context(name: str) -> bool:
+    if name in _STATEFUL_CONTEXT_BLOCKS:
+        return True
+    bare = name.replace("minecraft:", "")
+    return any(bare.endswith(suffix) for suffix in _STATEFUL_CONTEXT_SUFFIXES)
 
 
 def get_short_code(name: str) -> str:
@@ -129,6 +191,18 @@ def format_for_llm(
         if not b["is_redstone"]:
             continue
         if b["properties"]:
+            bare = b["name"].replace("minecraft:", "")
+            lines.append(f"  ({b['x']},{b['y']},{b['z']}) {bare}: {b['properties']}")
+
+    # --- Stateful context block properties ---
+    context_stateful = [
+        b for b in blocks
+        if not b["is_redstone"] and b["properties"] and is_stateful_context(b["name"])
+    ]
+    if context_stateful:
+        lines.append("")
+        lines.append("=== CONTEXT BLOCK PROPERTIES ===")
+        for b in context_stateful:
             bare = b["name"].replace("minecraft:", "")
             lines.append(f"  ({b['x']},{b['y']},{b['z']}) {bare}: {b['properties']}")
 

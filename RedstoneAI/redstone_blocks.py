@@ -1,5 +1,4 @@
 REDSTONE_BLOCKS: frozenset[str] = frozenset({
-    "minecraft:redstone"
     # Wire
     "minecraft:redstone_wire",
     # Repeaters & Comparators
