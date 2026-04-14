@@ -21,6 +21,9 @@ RUN pip install --upgrade \
     wheel
 
 COPY requirements.txt .
+# amulet-rocksdb's setup.py imports 'amulet' at build time, so amulet-core
+# must be installed before the full requirements build kicks off.
+RUN pip install --no-cache-dir "amulet-core>=1.9.32"
 RUN pip install --no-cache-dir --no-build-isolation -r requirements.txt
 
 COPY . .
