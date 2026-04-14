@@ -27,8 +27,14 @@ COPY requirements.txt .
 # install (which builds amulet-rocksdb and can now find `import amulet`).
 # amulet/__init__.py imports amulet_nbt at load time, so both must be present
 # before amulet-rocksdb's setup.py runs its `import amulet`.
+# amulet-rocksdb's setup.py does `import amulet` which chain-imports all of
+# amulet-core's runtime deps. Pre-install them all so amulet initialises
+# cleanly inside rocksdb's setup.py. Order: namespace seed → C exts that
+# built fine already → pure-Python runtime deps → full install.
 RUN pip install --no-cache-dir --no-deps "amulet-core>=1.9.32"
 RUN pip install --no-cache-dir --no-build-isolation "amulet-nbt~=2.0"
+RUN pip install --no-cache-dir "portalocker~=2.4" "pymctranslate~=1.2" "platformdirs~=3.1" "lz4~=4.3"
+RUN pip install --no-cache-dir --no-build-isolation "amulet-leveldb~=1.0"
 RUN pip install --no-cache-dir --no-build-isolation -r requirements.txt
 
 COPY . .
