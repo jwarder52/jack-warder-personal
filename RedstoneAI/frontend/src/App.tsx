@@ -128,8 +128,8 @@ export default function App() {
   }
 
   // ── Fill these in ──────────────────────────────────────────
-  const INSTAGRAM_HANDLE = "@RedstoneAI";
-  const INSTAGRAM_URL    = "https://instagram.com/yourhandle";
+  const INSTAGRAM_HANDLE = "@RedstoneAI_dev";
+  const INSTAGRAM_URL    = "https://www.instagram.com/redstoneai_dev";
   // ────────────────────────────────────────────────────────────
 
   return (
@@ -153,7 +153,7 @@ export default function App() {
               </div>
             </SignedIn>
           </div>
-          <h1 className={styles.title}>RedstoneAI</h1>
+          <h1 className={styles.title}>RedstoneAI <span className={styles.betaTag}>beta</span></h1>
           <p className={styles.subtitle}>
             Upload a Minecraft world, point to a redstone component, and get an AI-powered analysis.
           </p>
@@ -321,9 +321,14 @@ export default function App() {
           <h2 className={styles.footerTitle}>Contact Us</h2>
           <div className={styles.footerGrid}>
             <div className={styles.footerItem}>
-              <p className={styles.footerLabel}>Billing</p>
-              <a href="mailto:redstoneaisupport@gmail.com" className={styles.footerEmail}>
-                redstoneaisupport@gmail.com
+              <p className={styles.footerLabel}>Support the Project</p>
+              <a
+                href="https://buymeacoffee.com/redstoneai"
+                target="_blank"
+                rel="noreferrer"
+                className={styles.bmcBtn}
+              >
+                ☕ Buy me a coffee
               </a>
             </div>
             <div className={styles.footerDivider} />
