@@ -25,7 +25,10 @@ COPY requirements.txt .
 # amulet-core to be installed first. amulet-core is a pure Python wheel so we
 # can install it without deps to seed the amulet namespace, then do the full
 # install (which builds amulet-rocksdb and can now find `import amulet`).
+# amulet/__init__.py imports amulet_nbt at load time, so both must be present
+# before amulet-rocksdb's setup.py runs its `import amulet`.
 RUN pip install --no-cache-dir --no-deps "amulet-core>=1.9.32"
+RUN pip install --no-cache-dir --no-build-isolation "amulet-nbt~=2.0"
 RUN pip install --no-cache-dir --no-build-isolation -r requirements.txt
 
 COPY . .
