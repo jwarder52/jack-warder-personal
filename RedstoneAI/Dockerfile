@@ -23,7 +23,10 @@ RUN pip install --upgrade \
 COPY requirements.txt .
 # amulet-rocksdb's setup.py imports 'amulet' at build time, so amulet-core
 # must be installed before the full requirements build kicks off.
-RUN pip install --no-cache-dir "amulet-core>=1.9.32"
+# Both steps use --no-build-isolation so the globally installed cmake/cython/etc.
+# are visible to amulet-rocksdb's build (the cmake pip wrapper needs the cmake
+# Python module in scope, which isolated envs don't have).
+RUN pip install --no-cache-dir --no-build-isolation "amulet-core>=1.9.32"
 RUN pip install --no-cache-dir --no-build-isolation -r requirements.txt
 
 COPY . .
