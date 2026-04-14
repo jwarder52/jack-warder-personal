@@ -7,9 +7,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc g++ make && \
     rm -rf /var/lib/apt/lists/*
 
-# Install cmake 4.1+ globally via pip so amulet-rocksdb can find it
-# --no-build-isolation lets the build env see the globally installed cmake
-RUN pip install --upgrade "cmake>=4.1"
+# Pre-install all build tools amulet's C/C++ extensions need globally.
+# --no-build-isolation (used below) bypasses PEP 517 isolation so these are
+# visible during builds of amulet-nbt (no Linux wheels) and amulet-rocksdb.
+RUN pip install --upgrade \
+    "cmake>=4.1" \
+    "cython~=3.0" \
+    "numpy~=1.17" \
+    versioneer \
+    setuptools \
+    wheel
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir --no-build-isolation -r requirements.txt
