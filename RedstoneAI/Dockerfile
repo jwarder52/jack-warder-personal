@@ -35,11 +35,11 @@ RUN pip install --no-cache-dir --no-deps "amulet-core>=1.9.32"
 RUN pip install --no-cache-dir --no-build-isolation "amulet-nbt~=2.0"
 RUN pip install --no-cache-dir "portalocker~=2.4" "pymctranslate~=1.2" "platformdirs~=3.1" "lz4~=4.3"
 RUN pip install --no-cache-dir --no-build-isolation "amulet-leveldb~=1.0"
-# amulet/api/level/base_level.py imports `from rocksdb import ...` at module level,
-# creating a true circular dependency: building rocksdb requires importing amulet,
-# which imports rocksdb. Place a stub so the import succeeds during the build;
-# pip will overwrite it when the real wheel is installed.
-RUN python -c "import sys, os; site=next(p for p in sys.path if 'site-packages' in p and 'local' in p); os.makedirs(site+'/rocksdb', exist_ok=True); open(site+'/rocksdb/__init__.py','w').write('class RocksDB: pass\nclass Options: pass\nclass WriteOptions: pass\nclass CompressionType: pass\n')"
+# amulet-rocksdb is only needed for Minecraft Bedrock worlds. Our app uses Java
+# Edition worlds (anvil/leveldb), so we skip the C++ build entirely by:
+# 1. Creating a stub `rocksdb` module so `import amulet` succeeds at runtime
+# 2. Faking an amulet-rocksdb dist-info so pip skips building the wheel
+RUN python -c "import sys,os; s=next(p for p in sys.path if 'site-packages' in p and 'local' in p); os.makedirs(s+'/rocksdb',exist_ok=True); open(s+'/rocksdb/__init__.py','w').write('class RocksDB: pass\nclass Options: pass\nclass WriteOptions: pass\nclass CompressionType: pass\n'); d=s+'/amulet_rocksdb-1.0.3.dist-info'; os.makedirs(d,exist_ok=True); open(d+'/METADATA','w').write('Metadata-Version: 2.1\nName: amulet-rocksdb\nVersion: 1.0.3\n'); open(d+'/INSTALLER','w').write('pip\n'); open(d+'/RECORD','w').write('')"
 RUN pip install --no-cache-dir --no-build-isolation -r requirements.txt
 
 COPY . .
