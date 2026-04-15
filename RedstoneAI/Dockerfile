@@ -39,15 +39,7 @@ RUN pip install --no-cache-dir --no-build-isolation "amulet-leveldb~=1.0"
 # creating a true circular dependency: building rocksdb requires importing amulet,
 # which imports rocksdb. Place a stub so the import succeeds during the build;
 # pip will overwrite it when the real wheel is installed.
-RUN python -c "
-import sys
-site = next(p for p in sys.path if 'site-packages' in p and 'local' in p)
-import os; os.makedirs(site + '/rocksdb', exist_ok=True)
-open(site + '/rocksdb/__init__.py', 'w').write(
-    'class RocksDB: pass\nclass Options: pass\n'
-    'class WriteOptions: pass\nclass CompressionType: pass\n'
-)
-"
+RUN python -c "import sys, os; site=next(p for p in sys.path if 'site-packages' in p and 'local' in p); os.makedirs(site+'/rocksdb', exist_ok=True); open(site+'/rocksdb/__init__.py','w').write('class RocksDB: pass\nclass Options: pass\nclass WriteOptions: pass\nclass CompressionType: pass\n')"
 RUN pip install --no-cache-dir --no-build-isolation -r requirements.txt
 
 COPY . .
