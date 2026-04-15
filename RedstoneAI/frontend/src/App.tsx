@@ -75,7 +75,7 @@ export default function App() {
     if (!isSignedIn) return;
     getToken().then((token) => {
       console.log("[usage] fetching /me/usage");
-      fetch("/me/usage", { headers: { Authorization: `Bearer ${token}` } })
+      fetch(`${import.meta.env.VITE_API_URL ?? ""}/me/usage`, { headers: { Authorization: `Bearer ${token}` } })
         .then((r) => {
           console.log("[usage] response status", r.status);
           return r.json();
@@ -101,7 +101,7 @@ export default function App() {
     try {
       const token = await getToken();
       console.log("[analyze] submitting request");
-      const resp = await fetch("/analyze", {
+      const resp = await fetch(`${import.meta.env.VITE_API_URL ?? ""}/analyze`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: fd,

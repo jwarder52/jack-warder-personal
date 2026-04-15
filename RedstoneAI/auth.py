@@ -17,7 +17,10 @@ def get_current_user(
 ) -> User:
     state = _clerk.authenticate_request(
         request,
-        AuthenticateRequestOptions(authorized_parties=["http://localhost:5173"]),
+        AuthenticateRequestOptions(authorized_parties=[
+            "http://localhost:5173",
+            os.environ.get("FRONTEND_URL", ""),
+        ]),
     )
 
     if not state.is_signed_in:

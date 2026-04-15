@@ -10,6 +10,7 @@ load_dotenv()
 
 import amulet
 from fastapi import Depends, FastAPI, Form, HTTPException, Request, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
@@ -29,6 +30,16 @@ logging.basicConfig(
 log = logging.getLogger("redstoneai.app")
 
 app = FastAPI(title="RedstoneAI")
+
+_frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:5173")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[_frontend_url, "http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 templates = Jinja2Templates(directory="templates")
 
 FREE_MONTHLY_LIMIT = 20
