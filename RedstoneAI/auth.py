@@ -24,7 +24,11 @@ def get_current_user(
     )
 
     if not state.is_signed_in:
-        log.warning("auth_failed reason=not_signed_in")
+        log.warning("auth_failed reason=not_signed_in status=%s message=%s error_reason=%s",
+            getattr(state, 'status', None),
+            getattr(state, 'message', None),
+            getattr(state, 'reason', None),
+        )
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
 
     clerk_user_id = state.payload.get("sub")
