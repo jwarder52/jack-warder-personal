@@ -99,7 +99,7 @@ export default function App() {
     fd.set("world_zip", worldFile);
 
     try {
-      const token = await getToken();
+      const token = await getToken({ skipCache: true });
       console.log("[analyze] submitting request");
       const resp = await fetch(`${import.meta.env.VITE_API_URL ?? ""}/analyze`, {
         method: "POST",
@@ -215,27 +215,36 @@ export default function App() {
             />
           </section>
 
-          {usageCount >= FREE_LIMIT ? (
-            <button
-              type="button"
-              className={styles.buttonLimitReached}
-              onClick={() => setShowPro(true)}
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={styles.limitIcon}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-              </svg>
-              Monthly limit reached — Go Pro to keep analyzing
-            </button>
-          ) : (
-            <button className={styles.button} type="submit" disabled={status.kind === "loading"}>
-              {status.kind === "loading" ? (
-                <span className={styles.buttonLoading}>
-                  <span className={styles.spinner} />
-                  Analyzing...
-                </span>
-              ) : "Analyze"}
-            </button>
-          )}
+          <SignedOut>
+            <SignInButton mode="modal">
+              <button type="button" className={styles.buttonSignInRequired}>
+                Sign in to analyze
+              </button>
+            </SignInButton>
+          </SignedOut>
+          <SignedIn>
+            {usageCount >= FREE_LIMIT ? (
+              <button
+                type="button"
+                className={styles.buttonLimitReached}
+                onClick={() => setShowPro(true)}
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={styles.limitIcon}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                </svg>
+                Monthly limit reached — Go Pro to keep analyzing
+              </button>
+            ) : (
+              <button className={styles.button} type="submit" disabled={status.kind === "loading"}>
+                {status.kind === "loading" ? (
+                  <span className={styles.buttonLoading}>
+                    <span className={styles.spinner} />
+                    Analyzing...
+                  </span>
+                ) : "Analyze"}
+              </button>
+            )}
+          </SignedIn>
 
           {status.kind !== "idle" && status.kind !== "loading" && (
             <p className={`${styles.statusMsg} ${status.kind === "error" ? styles.statusError : styles.statusOk}`}>
